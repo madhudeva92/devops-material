@@ -10,6 +10,9 @@ Find a Word
   -R == read all files under each directory, recursively
   -w == Select only those lines containing matches that form whole words
   -e == specify the string (pattern) to be searched
+  
+- Print the output execpt a word containig words 
+  grep -v "anand" filename.txt
 
 Repalce a Word
 ------------
@@ -29,6 +32,9 @@ Repalce a Word
 
 - Replace a word in first accurence
   sed -i 's/original/new/1' file.txt
+  
+- Replace a word in Second accurence
+  sed -i 's/original/new/2' file.txt
 
 Find a File
 ------------
@@ -54,6 +60,9 @@ Find a File
 
 - Find a file with Greater than a specified size
   find / -size +700M
+  
+- Find a file less than perticula size
+  find . -type f -size -1M
 
 - Finding by Owner and Permissions
   find / -perm -644
@@ -70,6 +79,9 @@ Find a File
 
    - If we want files that were accessed in less than a day ago, we can type:
      find / -atime -1
+     
+   - Find the files created by a perticular interval
+     find /root -newermt "2018-01-01" ! -newermt "2019-11-23"
 
 Find a Directory
 ----------------
@@ -106,7 +118,10 @@ count the lines in a file
 
 Find the modified files in specified time
 -----------------------------------------
-find . -type f -newermt "2019-01-22 00:00:00" \! -newermt "2019-02-22 13:23:00"
+- find . -type f -newermt "2019-01-22 00:00:00" \! -newermt "2019-02-22 13:23:00"
+- find /root -newermt "2018-01-01" ! -newermt "2019-11-23"
+
+
 
 Zip a file 
 -----------
