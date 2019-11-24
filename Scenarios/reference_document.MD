@@ -162,7 +162,30 @@ Note: Ignore Multiple Strings
 
 cat test.txt |grep -v -e "anand" -e "shashi" -e "jkhl"
 
+User and Group 
+------------------------------------
 
+- find the users list 
+  cat /etc/passwd
+  
+- find the password stored place
+  cat /etc/shadow
+  
+- List of groups
+  cat /etc/group
+  
+Umask
+------------------------------------
+
+- Default Umask value 
+  0022
+  
+- Default Umask value for file
+  666-022 = 644
+  
+- Default Umask value for Folder
+  777-022 = 755
+  
 ls -ltr && ls -la && ll 
 -------
 	ls = list directory contents
