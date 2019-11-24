@@ -175,13 +175,13 @@ ls -ltr && ls -la && ll
 
 Commands:
 -------------------
-$? = The Exist status of last command
-$1,$2..$10 = Parameters
-$0 = File name of the current script
-$# = No.of Arguments supplied to a script
-$$ = Process ID of current shell
-$! = Process number of last executed script
-$* = Gives all the passed arguments as single argument
+	$? = The Exist status of last command
+	$1,$2..$10 = Parameters
+	$0 = File name of the current script
+	$# = No.of Arguments supplied to a script
+	$$ = Process ID of current shell
+	$! = Process number of last executed script
+	$* = Gives all the passed arguments as single argument
             
             $ cat 1.sh
             mkdir "$*"
