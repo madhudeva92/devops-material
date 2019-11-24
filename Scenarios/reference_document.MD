@@ -165,11 +165,12 @@ cat test.txt |grep -v -e "anand" -e "shashi" -e "jkhl"
 
 ls -ltr && ls -la && ll 
 -------
-ls = list directory contents
--l = long listing: lists the mode, link information, owner, size, last modification (time). If the file is a symbolic link, an arrow (-->) precedes the pathname of the linked-to file.
--t = Sort with the primary key being time modified (most recently modified first) and the secondary key being filename in the collating sequence.
--r = Reverse the order of the sort to get reverse collating sequence or oldest first
--a = Write out all directory entries, including those whose names begin with a period ( '.' ). Entries beginning with a period shall not be written out unless explicitly referenced, the -a option is supplied, or an implementation-defined condition shall cause them to be written.
+	ls = list directory contents
+	
+	-l = long listing: lists the mode, link information, owner, size, last modification (time). If the file is a symbolic link, an arrow (-->) precedes the pathname of the linked-to file.
+	-t = Sort with the primary key being time modified (most recently modified first) and the secondary key being filename in the collating sequence.
+	-r = Reverse the order of the sort to get reverse collating sequence or oldest first
+	-a = Write out all directory entries, including those whose names begin with a period ( '.' ). Entries beginning with a period shall not be written out unless explicitly referenced, the -a option is supplied, or an implementation-defined condition shall cause them to be written.
 
 
 Commands:
