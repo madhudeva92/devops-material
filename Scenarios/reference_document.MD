@@ -117,11 +117,13 @@ Print perticular position of the Word:
 --------------------------------------
 
 - Print second word of every line
-  awk {'print $2'}
+
+	  awk {'print $2'}
 
 - Print the match word
-  awk '/manager/ {print}' employee.txt
-  awk '/RUN/ {print $1,$2}' Dockerfile
+
+  	awk '/manager/ {print}' employee.txt
+  	awk '/RUN/ {print $1,$2}' Dockerfile
 
 - awk '{print $1,$2}' Dockerfile
 
@@ -158,7 +160,18 @@ Adding a single line by end of the file
 
 Top 5 CPU consuming processes:
 --------------------------------------
-ps -Ao user,pcpu,pid,uid,%mem --sort=-pmem |head -n 5
+
+	ps -Ao user,pcpu,pid,uid,%mem --sort=-%mem |head -n 5
+	
+	-e     Select all processes.  Identical to -A.
+	-o format
+              User-defined format.  format is a single argument in the form of a blank-separated or comma-separated list, which offers a way to specify individual output columns.
+
+Print a Proccess tree:
+----------------------
+
+	ps -e --forest  
+
 
 Check a process is running howmuch long
 -------------------------------------
