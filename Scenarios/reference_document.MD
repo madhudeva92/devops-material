@@ -2,17 +2,20 @@
 Find a Word
 ------------
 - Find a word in a file
-  grep "word" filename
+
+	  grep "word" filename
 
 - Find a Word in a folder-inside-folder and file
-  grep -Rw /home/reddredd/ -e "apk update"
+  	
+	  grep -Rw /home/reddredd/ -e "apk update"
 
   -R == read all files under each directory, recursively
   -w == Select only those lines containing matches that form whole words
   -e == specify the string (pattern) to be searched
   
 - Print the output execpt a word containig words 
-  grep -v "anand" filename.txt
+  
+ 	 grep -v "anand" filename.txt
 
 Repalce a Word
 ------------
