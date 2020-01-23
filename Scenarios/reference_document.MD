@@ -21,6 +21,7 @@ Repalce a Word
 ------------
 
 - sed -i 's/original/new/g' file.txt
+
 	Explanation:
 
 		sed = Stream EDitor
@@ -34,26 +35,31 @@ Repalce a Word
 		file.txt = the file name
 
 - Replace a word in first accurence
-  sed -i 's/original/new/1' file.txt
+	
+  	sed -i 's/original/new/1' file.txt
   
 - Replace a word in Second accurence
-  sed -i 's/original/new/2' file.txt
+  
+  	sed -i 's/original/new/2' file.txt
 
 Find a File
 ------------
 
 - Find an Empty file
-  find . -type f -empty
+
+  	find . -type f -empty
 
 - Find a file
-  find / -type f -name *.cer
+  
+  	find / -type f -name *.cer
 
 - find -name "test*"
 
-- find -iname "query"  ==-iname is for ignoring the case sensitive
+- find -iname "query"  // -iname is for ignoring the case sensitive
 
-- Find a file with lessa than a specified size
-  find / -size -50c
+- Find a file with less than a specified size
+  	
+	  find / -size -50c
 
 		c: bytes
 		k: Kilobytes
@@ -62,13 +68,16 @@ Find a File
 		b: 512-byte blocks
 
 - Find a file with Greater than a specified size
-  find / -size +700M
+  
+  	find / -size +700M
   
 - Find a file less than perticula size
-  find . -type f -size -1M
+  
+  	find . -type f -size -1M
 
 - Finding by Owner and Permissions
-  find / -perm -644
+  
+  	find / -perm -644
 
 - Time
 	Linux stores time data about access times, modification times, and change times.
@@ -77,14 +86,18 @@ Find a File
 	Modification Time: Last time the contents of the file were modified.
 	Change Time: Last time the file's inode meta-data was changed.
 
-   - find / -mtime -1
-     To find files that have a modification time of a day ago, type:
+   - To find files that have a modification time of a day ago, type:
+   
+   	  find / -mtime -1
+     
 
    - If we want files that were accessed in less than a day ago, we can type:
-     find / -atime -1
+     
+     	find / -atime -1
      
    - Find the files created by a perticular interval
-     find /root -newermt "2018-01-01" ! -newermt "2019-11-23"
+     
+     	find /root -newermt "2018-01-01" ! -newermt "2019-11-23"
 
 Find a Directory
 ----------------
