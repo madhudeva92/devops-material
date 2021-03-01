@@ -1,0 +1,196 @@
+https://github.com/DeekshithSN/sample-web-application/blob/master/Jenkinsfile2
+
+
+pipeline {
+ agent {
+  label 'rhel','windows'
+}
+
+stages {
+
+ stage ('pull repo') {
+  steps {
+   git clone 'https://xyz.com'
+  }
+  }
+
+ stage ('Build') {
+  steps {
+   sh 'mvn clean install'
+  }
+  }
+
+ stage('code analysis'){
+  steps {
+   sh 'mvn sonar:sonar'
+  }
+  }
+
+}
+
+}
+
+
+-------------------------------------------------------------------------------------------------------------------
+
+pipeline{
+
+      agent {
+                docker {
+                image 'maven'
+                args '-v $HOME/.m2:/root/.m2'
+                }
+            }
+        
+        stages{
+
+              stage('maven build'){
+                  steps{
+                      script{
+		    	     sh "mvn clean install"
+                      	  }
+               	     }  
+                 }	
+                 
+                 stage ('Check logs') {
+                    steps {
+                        filterLogs ('WARNING', 1)
+                    }
+                }
+		
+           }	       	     	         
+}
+
+
+---------------------------------------------------------------------------------
+pipeline{
+    agent {
+        label 'rhel'
+    }
+
+    stages{
+
+        stage('Pull Repo'){
+            steps {
+                git 'https://github.com/asquarezone/spring-petclinic.git'
+                
+            }
+        }
+
+        stage('Build'){
+            steps {
+                sh 'mvn clean install'
+            }
+        }
+
+        stage('Publish'){
+            steps{
+                junit allowEmptyResults: true, testResults: 'target/surefire-reports/*.xml'
+            }
+            
+        }
+    }
+    
+
+    post {
+        success {
+          emailext(
+            subject: "${env.JOB_NAME} [${env.BUILD_NUMBER}] Development Promoted to Master",
+            body: """<p>'${env.JOB_NAME} [${env.BUILD_NUMBER}]' Development Promoted to Master":</p>
+            <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>""",
+            to: "qtdevops@gmail.com"
+          )
+        }
+   
+        failure {
+        emailext(
+            subject: "${env.JOB_NAME} [${env.BUILD_NUMBER}] Failed!",
+            body: """<p>'${env.JOB_NAME} [${env.BUILD_NUMBER}]' Failed!":</p>
+            <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>""",
+            to: "qtdevops@gmail.com"
+        )
+        }
+  }
+    
+}
+
+----------------------------------
+pipeline {
+    agent {
+        // Define agent details here
+    }
+    environment {
+        AWS_ACCESS_KEY_ID     = credentials('jenkins-aws-secret-key-id')
+        AWS_SECRET_ACCESS_KEY = credentials('jenkins-aws-secret-access-key')
+    }
+    stages {
+        stage('Example stage 1') {
+            steps {
+                // 
+            }
+        }
+        stage('Example stage 2') {
+            steps {
+                // 
+            }
+        }
+    }
+}
+
+---------------------------------
+environment {
+    BITBUCKET_COMMON_CREDS = credentials('jenkins-bitbucket-common-creds')
+}
+------------------------------------------
+pipeline {
+    agent any
+    stages {
+        stage('Test') {
+            steps {
+                sh 'make check'
+            }
+        }
+    }
+    post {
+        always {
+            junit '**/target/*.xml'
+        }
+        failure {
+            mail to: team@example.com, subject: 'The Pipeline failed :('
+        }
+    }
+}
+
+-------------------------------------------------------
+pipeline {
+    agent any
+
+    tools {
+        // Install the Maven version configured as "M3" and add it to the path.
+        maven "M3"
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                // Get some code from a GitHub repository
+                git 'https://github.com/jglick/simple-maven-project-with-tests.git'
+
+                // Run Maven on a Unix agent.
+                sh "mvn -Dmaven.test.failure.ignore=true clean package"
+
+                // To run Maven on a Windows agent, use
+                // bat "mvn -Dmaven.test.failure.ignore=true clean package"
+            }
+
+            post {
+                // If Maven was able to run the tests, even if some of the test
+                // failed, record the test results and archive the jar file.
+                success {
+                    junit '**/target/surefire-reports/TEST-*.xml'
+                    archiveArtifacts 'target/*.jar'
+                }
+            }
+        }
+    }
+}
