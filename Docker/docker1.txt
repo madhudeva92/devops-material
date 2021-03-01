@@ -1,0 +1,88 @@
+
+
+
+
+
+
+Installation :: 
+1)check the OS distribution by running cat/etc/*release*
+2)Remove older version if any by (apt-get remove docker docker-engine)
+3)uname() returns system information
+Prerequisite
+OS should be 64 bit
+Linux kernel ver 3.10 or greater
+
+command to check : uname -r
+
+STEP 1 - Connect to Linux system
+
+STEP 2 - Install DOCKER
+sudo yum -y update
+sudo yum install -y docker
+
+docker
+docker --version
+
+STEP 3 - start DOCKER
+sudo service docker start
+sudo usermod -a -G docker "user"
+
+docker info
+
+-----------------------------------------------------------------------
+docker run -it centos bash
+docker exec -it centos /bin/bash
+docker exec containerID cat /etc/*release*/
+---------------------------------------
+docker run ubuntu cat /etc/*release*(same as EXEC)
+docker run python:3.6 cat /etc/*release*
+docker inspect CID
+
+Note :: We can't do port maaping while the container is running*
+
+RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+
+-----------------------------------------------
+FROM Ubuntu
+
+RUN apt-get update
+RUN apt-get install python
+
+RUN pip install flask
+RUN pip install flask-mysql
+
+COPY . /opt/source-code
+
+ENTRYPOINT FLASK_APP=/opt/source-code/app.py flask run
+
+-------------------------------------------------------
+docker build -t ubuntu:latest . --cache-from 
+docker build -t ubuntu:latest . --cgroup-parent
+docker build -t ubuntu:latest . --compress
+docker build -t ubuntu:latest . --cpu-
+docker build -t ubuntu:latest -f 
+docker build -t ubuntu:latest . --force-rm
+docker build -t ubuntu:latest . -m
+docker build -t ubuntu:latest . --network
+docker build -t ubuntu:latest . --no-cache
+docker build -t ubuntu:latest . --rm
+docker build -t ubuntu:latest . --squash (Squash newly built layers into a single new layer)
+
+-----------------------------------------
+docker build github.com/creack/docker-firefox
+docker build -f ctx/Dockerfile http://server/ctx.tar.gz
+
+Note :: if the filename is diff than dockerfile then u need to use -f 
+
+-----------------------------------
+----------------------------------------------------
+docker history imagename
+------------------------------------
+docker run -it ubuntu bash
+----------------------
+docker login -u -p
+docker login --password-stdin(Take the password from stdin)
+docker login --username foo --password-stdin
+docker login localhost:8080
