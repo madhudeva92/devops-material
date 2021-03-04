@@ -116,15 +116,18 @@
 
  #### Git fetch:
      
-     
-	      git pull = git fetch + git merge
-
-	      git fetch == > will stores the info into u r local repo but it is not going to merge. For merging u need to run "git merge"
+     	        git fetch == > will stores the info into u r local repo but it is not going to merge. For merging u need to run "git merge"
 	                == > git fetch only downloads latest changes into local repository. it downloads fresh changes that other developers 
 			     have pushed the remote repository since last fetch and allows you to review and merge manually at a later time 
 			     using git merge. Because it doesn't change your working directory or
 			     the stageing area, it is entirly safe, ans you can run it as often as you want.
- 
+ #### Git Pull:
+   		
+		Git pull downloads the latest changes into local repository and it also automatically merges change in your working directory.
+		it doesn't give you a chance to review the changes the before merging, and as a consequence, 'merge conflicts' can do on occer.
+		one importent thing to keep in mind is that it will merge only into the current branch. other branches will stay unaffected.
+		
+		git pull = git fetch + git merge
  #### git log
 
 	       	For the graphical view of commits/logs
