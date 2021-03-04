@@ -120,6 +120,9 @@
 	      git pull = git fetch + git merge
 
 	      git fetch == > will stores the info into u r local repo but it is not going to merge. For merging u need to run "git merge"
+	                == > git fetch only downloads latest changes into local repository. it downloads fresh changes that other developers have pushed the remote repository
+			     since last fetch and allows you to review and merge manually at a later time using git merge.Because it doesn't change your working directory or
+			     the stageing area, it is entirly safe, ans you can run it as often as you want.
  
  #### git log
 
