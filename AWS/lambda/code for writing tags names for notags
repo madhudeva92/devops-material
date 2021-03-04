@@ -1,0 +1,46 @@
+import json
+import boto3
+import time
+
+def lambda_handler(event, context):
+
+    client = boto3.client('ec2')
+    zones=client.describe_regions()
+    
+    missing_tag_instance_id={}
+    
+    for region in zones["Regions"]:
+        
+        region_called = region["RegionName"]
+        
+        ec2 = boto3.client('ec2',region_name = region_called)
+        
+        response = ec2.describe_instances()
+        
+        for resv in response["Reservations"]:
+        
+            for instance in resv["Instances"]:
+
+                if "Tags" not in [ key_element for key_element in instance]:
+                    new_tag='App_'+str(round(time.time() * 1000))
+                    print(f"The instance: {instance['InstanceId']} has no tags at all, if your's please update: {region_called}")
+                    ec2.create_tags(Resources=[instance['InstanceId']], Tags=[{'Key':'Name', 'Value':new_tag}])
+                    missing_tag_instance_id[instance['InstanceId']]=new_tag
+                    continue
+                
+                else:
+                    for key_element in instance:
+                        if "Tags" == key_element:
+                            for tag_element in instance[key_element]:
+                                if not tag_element['Value']:
+                                    new_tag='App_'+str(round(time.time() * 1000))
+                                    print(f"The instance: {instance['InstanceId']} has tags is empty, if your's please update: {region_called}")
+                                    ec2.create_tags(Resources=[instance['InstanceId']], Tags=[{'Key':'Name', 'Value':new_tag}])
+                                    missing_tag_instance_id[instance['InstanceId']]=new_tag
+
+    response = {'Instances with following instance ids have been updated : ': missing_tag_instance_id}
+    return {
+        'statusCode': 200,
+        'body': json.dumps(response)
+    }
+
