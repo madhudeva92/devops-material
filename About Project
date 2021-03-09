@@ -1,15 +1,15 @@
 Enterprise Monitoring is a one of the monitoring applicaion.which is written in nodejs language.they want to monitor their application status.
 status in the sense success rate, failure rate and metric checks and they want to monitor cpu, memory, node helth checks and all.
 so these many kind of metrics they want to monitor. So our application is going to help them like they can able to just signup with our application and 
-automatically our application will take the all operation what i specifieed. and we are going to store into some database like we are using casandra before that they are used
-some other different database for sending the data in proper queing mechanisum.and finally storing in casandra. and we are dispalying the data which is resides in database.
-here we have of lot of microservices based on that some microservices responsible for extracting the data as per your application, again based on filter like if you
-want to see from last one hour data failure data itself then you can filter it and you can export to particular data or else you can download it like that kind of 
-microservices. even some other like login microservice and validity micro service so many micro service are there. so for this application we are responsible for doing the entire 
-ci/cd pipeline setup.So we have lot and  lot of micro service around 30 to 35 micro services .
+automatically our application will take the all operation what i specifieed. and we are going to store into some database like we are using casandra before that 
+they are used some other different database for sending the data in proper queing mechanisum.and finally storing in casandra. and we are dispalying the data 
+which is resides in database.here we have of lot of microservices based on that some microservices responsible for extracting the data as per your application, 
+again based on filter like if you want to see from last one hour data failure data itself then you can filter it and you can export to particular data or else 
+you can download it like that kind of microservices. even some other like login microservice and validity micro service so many micro service are there. 
+so for this application we are responsible for doing the entire ci/cd pipeline setup.So we have lot and  lot of micro service around 30 to 35 micro services .
 we are going to set up entire ci/cd pipeline which includes github, npm, jenkins, ansible and docker. so we are using these mechanisums with followed by shell script and
 anyway yaml plybooks and other things. and we are automating regular activites here our orchestration tool we are using docker swarm. so this is the main intension 
 And coming to other roles and responsibilites like 
 we are responsible for taking the regular backups and removing the unwanted logs and we are giving to proper permission to the developers
-for github side.not only these application any application which is some what urgent and any particular new appliction came we are responsible for seting up the entire process
-from scartch. so these are the few roles and responsibilties.
+for github side.not only these application any application which is some what urgent and any particular new appliction came we are responsible for seting 
+up the entire processfrom scartch. so these are the few roles and responsibilties.
