@@ -1,0 +1,10 @@
+provider "aws" {
+  region = var.region_name
+}
+terraform {
+  backend "s3" {
+    bucket = "my-bucket-for-test2"
+    key    = "terraformlogs/terraform.tfstate"
+    region = "us-east-1"
+  }
+}
