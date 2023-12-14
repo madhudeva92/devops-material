@@ -1,5 +1,79 @@
 ## Linux_Insterview Questions Answers
 
+## How to exclude the package from yum update
+
+   - You can perform "yum update --exclude=kernel* --exclude=php*"
+
+   -  Also, you can specify the same on "/etc/yum.conf" 
+   
+	[main]
+	cachedir=/var/cache/yum/$basearch/$releasever
+	keepcache=0
+	debuglevel=2
+	logfile=/var/log/yum.log
+	exactarch=1
+	obsoletes=1
+	gpgcheck=1
+	plugins=1
+	installonly_limit=5
+	exclude=kernel* redhat-release* php* mysql* httpd* 
+
+## Upgrading the Package 
+  
+   Link : https://www.prado.lt/5-minute-upgrade-nginx-1-12-to-1-17-on-centos-7-rhel-7
+
+## How to close vi file which alredy opened and forgot to close.
+
+   option 1 : Kill the vi process
+   Option 2:  remove the .swp file 
+
+## How to increse the number of files to open in linux:
+---------------------------------------------------
+
+to increase open file limit to 500000, you can use the following command as root:
+
+	sysctl -w fs.file-max=500000
+	
+	# cat /proc/sys/fs/file-max
+	
+		Note: With the above command the changes you have made will only remain active until the next reboot. If you wish to apply them permanently, you will have to edit the following file:
+		
+		# vi /etc/sysctl.conf
+		
+		Add this line in file : 
+			fs.file-max=500000
+
+ulimit :
+--------------------------
+
+ulimit is admin access required Linux shell command which is used to see, set, or limit the resource usage of the current user. It is used to return the number of open file descriptors for each process. It is also used to set restrictions on the resources used by a process.
+
+ulimt -u
+ulimit -a   -> for all
+
+- showing the maximum file size a user can have.
+	ulimt -f
+	
+- To display maximum users process or for showing maximum user process limit for the logged-in user.
+	ulimit -u
+	
+- Set Ulimit temporarley
+	ulimit -u 12345
+
+- Set Ulimit permanentley 
+	vim /etc/security/limits.conf
+
+
+/var/log/messages
+-------------------------
+
+The most important log file in Linux is the /var/log/messages file, which records a variety of events, such as the system error messages, system startups and shutdowns, change in the network configuration, etc.
+	
+
+- Service account in k8s.
+- how to upgrade k8s
+
+
 How to check the remote server port open or not
 -----------------------------------------------
 
@@ -167,7 +241,7 @@ Find a Logs
 
 - tail -fn 100 filename
 
-- head -n 10 filename 
+- head -n 10 filename  or pr -10 filename
 
 
 
@@ -272,6 +346,9 @@ Umask
   
 - Default Umask value for Folder
   777-022 = 755
+
+- Change the Umask value permanently
+  vi /etc/bashrc --> chnage in that file
   
 ls -ltr && ls -la && ll 
 -------

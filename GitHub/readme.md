@@ -1,3 +1,7 @@
+### Change the commit message ( It not pushed to remote repo )
+
+	git commit --amend -m "New commit message"
+
 ### Clone the git repo with UserName and Password
 	
 	git clone https://username:password@github.com/username/repository.git
@@ -8,6 +12,17 @@
 		sshpass -p password git clone ssh://username@onboard.com/srv/git/repo
 
 ### Copy the entire git repo to another empty repo with all history , commits and Tags.
+
+	I think the commands you are looking for are:
+
+	cd repo2
+	git checkout master
+	git remote add r1remote **url-of-repo1**
+	git fetch r1remote
+	git merge r1remote/master --allow-unrelated-histories
+	git remote rm r1remote
+	
+	After that repo2/master will contain everything from repo2/master and repo1/master, and will also have the history of both of them.
 
 
 ## Git Commands to performe the operations

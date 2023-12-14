@@ -7,6 +7,20 @@
   Ans: 
     docker run -it -v /root/dk/:/opt --name <container Name> b8a416efc2c8 bash -c "sh /opt/test.sh && chown 1001 test.html"
 
+## Multi Staged docker container
+    
+    # syntax=docker/dockerfile:1
+    FROM golang:1.16 AS builder
+    WORKDIR /go/src/github.com/alexellis/href-counter/
+    RUN go get -d -v golang.org/x/net/html  
+    COPY app.go    .
+    RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
+
+    FROM alpine:latest  
+    RUN apk --no-cache add ca-certificates
+    WORKDIR /root/
+    COPY --from=builder /go/src/github.com/alexellis/href-counter/app .
+    CMD ["./app"]  
 
 ## Docker Union File System
 
@@ -171,3 +185,162 @@ Ref : https://goinbigdata.com/docker-run-vs-cmd-vs-entrypoint/
 
             apapche_app.4.s6i2u7xsetr3zx7yezn2azivg a715c247ba9f    Up 18 hours
             apapche_app.1.tjuie7d5mjjdgy36upxuv5h5u 3a88d2f401c0    Up 18 hours
+            
+---------------------------------------------------------------
+                        
+## COPY and ADD differences
+            
+Difference-1 👎           
+
+If you want to add a xx.tar.gz to a /usr/local in container, unzip it, and then remove the useless compressed package.
+
+For COPY:
+
+        COPY resources/jdk-7u79-linux-x64.tar.gz /tmp/
+        RUN tar -zxvf /tmp/jdk-7u79-linux-x64.tar.gz -C /usr/local
+        RUN rm /tmp/jdk-7u79-linux-x64.tar.gz
+
+For ADD:
+
+        ADD resources/jdk-7u79-linux-x64.tar.gz /usr/local/
+
+ADD supports local-only tar extraction. Besides it, COPY will use three layers, but ADD only uses one layer.
+
+            
+            
+Difference-2 👎
+
+- COPY copies a file/directory from your host to your image.
+
+- ADD copies a file/directory from your host to your image, but can also fetch remote URLs, extract TAR files, etc... 
+
+--------------------------------------------------------------------------------------
+
+ENTRYPOINT Vs CMD
+            
+    I'll add my answer as an example1 that might help you better understand the difference.
+
+    Let's suppose we want to create an image that will always run a sleep command when it starts. We'll create our own image and specify a new command:
+
+            FROM ubuntu
+            CMD sleep 10
+
+    Building the image:
+
+            docker build -t custom_sleep .
+            docker run custom_sleep
+            # sleeps for 10 seconds and exits
+
+    What if we want to change the number of seconds? We would have to change the Dockerfile since the value is hardcoded there, or override the command by providing a different one:
+
+            docker run custom_sleep sleep 20
+
+    While this works, it's not a good solution, as we have a redundant "sleep" command. Why redundant? Because the container's only purpose is to sleep, so having to specify the sleep command explicitly is a bit awkward.
+
+    Now let's try using the ENTRYPOINT instruction:
+
+            FROM ubuntu
+            ENTRYPOINT sleep
+
+    This instruction specifies the program that will be run when the container starts.
+
+    Now we can run:
+
+            docker run custom_sleep 20
+
+    What about a default value? Well, you guessed it right:
+
+            FROM ubuntu
+            ENTRYPOINT ["sleep"]
+            CMD ["10"]
+
+    The ENTRYPOINT is the program that will be run, and the value passed to the container will be appended to it.
+
+    The ENTRYPOINT can be overridden by specifying an --entrypoint flag, followed by the new entry point you want to use.
+
+------------------------------------------------------------------------------------------------------
+
+### From inside of a Docker container, how do I connect to the localhost of the machine?
+
+    Use --network="host" in your docker run command, then 127.0.0.1 in your docker container will point to your docker host.
+
+--------------------------------------------------------------------------------------------------------
+### How to copy Docker images from one host to another without using a repository
+
+Ref  : https://medium.com/@BeNitinAgarwal/understanding-the-docker-internals-7ccb052ce9fe
+
+You will need to save the Docker image as a tar file:
+
+    docker save -o <path for generated tar file> <image name>
+
+Then copy your image to a new system with regular file transfer tools such as cp, scp or rsync(preferred for big files). After that you will have to load the image into Docker:
+
+    docker load -i <path to image tar file>
+
+PS: You may need to sudo all commands.
+
+EDIT: You should add filename (not just directory) with -o, for example:
+
+docker save -o c:/myfile.tar centos:16
+
+
+    Commands 👎
+        Transferring a Docker image via SSH, bzipping the content on the fly:
+
+        docker save <image> | bzip2 | \
+             ssh user@host 'bunzip2 | docker load'
+
+        It's also a good idea to put pv in the middle of the pipe to see how the transfer is going:
+
+        docker save <image> | bzip2 | pv | \
+             ssh user@host 'bunzip2 | docker load'
+
+-------------------------------------------------------------------------------------
+            
+### Understanding the Docker Internals        
+            
+   ![image](https://user-images.githubusercontent.com/51190838/118591709-455a0d00-b7c2-11eb-8d44-ad168bb52f1b.png)
+            
+Docker takes advantage of several features of the Linux kernel to deliver its functionality.
+            
+Namespaces 👎
+        Docker makes use of kernel namespaces to provide the isolated workspace called the container. When you run a container, Docker creates a set of namespaces for that container. These namespaces provide a layer of isolation. Each aspect of a container runs in a separate namespace and its access is limited to that namespace.
+
+                    Docker Engine uses the following namespaces on Linux:
+
+            PID namespace for process isolation.
+            NET namespace for managing network interfaces.
+            IPC namespace for managing access to IPC resources.
+            MNT namespace for managing filesystem mount points.
+            UTS namespace for isolating kernel and version identifiers.
+            
+Cgroups 👎
+
+        Docker also makes use of kernel control groups for resource allocation and isolation. A cgroup limits an application to a specific set of resources. Control groups allow Docker Engine to share available hardware resources to containers and optionally enforce limits and constraints.
+
+        Docker Engine uses the following cgroups:
+
+            Memory cgroup for managing accounting, limits and notifications.
+            HugeTBL cgroup for accounting usage of huge pages by process group.
+            CPU group for managing user / system CPU time and usage.
+            CPUSet cgroup for binding a group to specific CPU. Useful for real time applications and NUMA systems with localized memory per CPU.
+            BlkIO cgroup for measuring & limiting amount of blckIO by group.
+            net_cls and net_prio cgroup for tagging the traffic control.
+            Devices cgroup for reading / writing access devices.
+            Freezer cgroup for freezing a group. Useful for cluster batch scheduling, process migration and debugging without affecting prtrace.
+
+Union File Systems 👎
+
+    Union file systems operate by creating layers, making them very lightweight and fast. Docker Engine uses UnionFS to provide the building blocks for containers. Docker Engine can use multiple UnionFS variants, including AUFS, btrfs, vfs, and devicemapper.
+
+Container Format 👎
+
+    Docker Engine combines the namespaces, control groups and UnionFS into a wrapper called a container format. The default container format is libcontainer.
+
+Security 👎
+
+    Docker Engine makes use of AppArmor, Seccomp, Capabilities kernel features for security purposes.
+
+        AppArmor :  allows to restrict programs capabilities with per-program profiles.
+        Seccomp : used for filtering syscalls issued by a program.
+        Capabilties : for performing permission checks.

@@ -1,3 +1,19 @@
+
+## Jenkins Issue after ( yum update )
+
+- Once I updated the packages then Jenkins stopped working and showing below error.	
+
+Solution : 
+
+ - yum history  --> check when update got happened recentley and note that number
+
+![image](https://user-images.githubusercontent.com/51190838/118772924-e966b580-b8a1-11eb-981e-3480cbf1a806.png)
+
+- Filter the history with number and grep only jenkins and downgarde with old version.
+
+![image](https://user-images.githubusercontent.com/51190838/118773161-2a5eca00-b8a2-11eb-8f7c-917c3925e1b4.png)
+
+
 ## Questions: 
 
 	- Jenkins Workflow Library
@@ -78,6 +94,15 @@
     
                 #!groovy
                 branch = env.BRANCH_NAME
+		def configmap_env() {
+		    if (params.PUSH_DATA_TO == 'KAAS_TO_INT'){
+			return [config_env:'se-second-mongo-kaas-to-int-config']
+		    }else if (params.PUSH_DATA_TO == 'INT_TO_PREPROD'){
+			return [config_env:'se-second-mongo-int-to-preprod-config']
+		    }else if (params.PUSH_DATA_TO == 'STAGE_TO_PROD'){
+			return [config_env:'se-second-mongo-stage-to-prod-config']
+		    }
+		}
 
                 pipeline
                 {
@@ -256,6 +281,10 @@
 		{
 			steps {
 				build job: 'test-pipeline-child', quietPeriod: 0
+				
+				or
+				
+				build job: 'Push-data-from-thread', parameters: [string(name: 'IMAGE_ID', value: "${IMAGE_ID}"), string(name: 'PARENT_BUILD_NUMBER', value: "${BUILD_NUMBER}")]
 			}
 		}
 		
@@ -267,3 +296,31 @@
 	
 	then go to " vi /var/lib/jenkins/users/anand_573465765/config.xml" and find "Passwordhash" section. 
 	Replace that hash code with another password known hash code and restart the jenkins. 
+
+
+## Shared Library
+
+![image](https://user-images.githubusercontent.com/51190838/118755196-1311e380-b886-11eb-87cb-b2c24250b38c.png)
+
+## Ansible playbook Invoking in JenkinsFile
+
+	withCredentials([file(credentialsId: 'ansible_vault_keyfile', variable: 'ansibleVaultKeyFile')]) {
+		ansiblePlaybook playbook: 'running-colour.yml', inventory: 'ec2.py', extras: "-e env_name=$environment --vault-password-file ${ansibleVaultKeyFile}"
+		}
+
+## Invoke Docker with Jenkins file
+
+	stage('Publish Docker Images to DockerHub')
+			{
+				steps
+				{
+					echo "Pushing Docker image to Registory"
+					script
+					{
+						dockerImageTag="$dockerImageRepo"+":"+"$BUILD_NUMBER"
+						dockerImage = docker.build "${dockerImageTag}"
+						sh 'docker login --username="anandgit71" --password="anandgit12" ${dockerRegistry}'
+						dockerImage.push()
+					}
+				}
+			}

@@ -1,3 +1,204 @@
+### Statefulset
+
+A StatefulSet is the Kubernetes controller used to run the stateful application as containers (Pods) in the Kubernetes cluster. StatefulSets assign a sticky identity—an ordinal number starting from zero—to each Pod instead of assigning random IDs for each replica Pod. A new Pod is created by cloning the previous Pod’s data. If the previous Pod is in the pending state, then the new Pod will not be created. If you delete a Pod, it will delete the Pod in reverse order, not in random order. For example, if you had four replicas and you scaled down to three, it will delete the Pod numbered 3.
+
+Ref Link: https://loft.sh/blog/kubernetes-statefulset-examples-and-best-practices/
+Ref Link: https://github.com/MithilShah/kubernetes-course/tree/master/kubernetes_statefulsets
+
+### Deployments vs StatefulSets vs DaemonSets.
+
+	Deployment - You specify a PersistentVolumeClaim that is shared by all pod replicas. In other words, shared volume.
+
+			The backing storage obviously must have ReadWriteMany or ReadOnlyMany accessMode if you have more than one replica pod.
+
+	StatefulSet - You specify a volumeClaimTemplates so that each replica pod gets a unique PersistentVolumeClaim associated with it. In other words, no shared volume.
+
+			Here, the backing storage can have ReadWriteOnce accessMode.
+
+			StatefulSet is useful for running things in cluster e.g Hadoop cluster, MySQL cluster, where each node has its own storage.
+
+	DaemonSets - DaemonSet is a controller similar to ReplicaSet that ensures that the pod runs on all the nodes of the cluster. If a node is added/removed from a cluster, DaemonSet automatically adds/deletes the pod.
+
+### Declare the sidecar containers in a Pod.
+
+A sidecar is just a container that runs on the same Pod as the application container, because it shares the same volume and network as the main container, it can “help” or enhance how the application operates. Common examples of sidecar containers are log shippers, log watchers, monitoring agents among others.
+
+		apiVersion: v1
+		kind: Pod
+		metadata:
+		  name: bookings-v1-b54bc7c9c-v42f6
+		  labels:
+		    app: demoapp
+		spec:
+		  containers:
+		  - name: bookings
+		    image: banzaicloud/allspark:0.1.1
+		    ...
+		  - name: istio-proxy
+		    image: docker.io/istio/proxyv2:1.4.3
+		    lifecycle:
+		      type: Sidecar
+
+### Commands
+ List out all the server resources
+
+	 kubectl describe nodes | grep 'Name:\|  cpu\|  memory'
+	 
+### Pod creation restriction
+	Restrict pod creation to specific node with NodeSelector ( we can use constraints and nodeName as well)
+	https://quip.com/2DLOANcntXHO/Restrict-Pod-creation
+	 
+### Taints and Tolarations 
+
+	spec:
+           tolerations:
+           - effect: NoSchedule
+             key: key
+             operator: Equal
+             value: epam
+	     
+### Pod Eviction | Removing worker Node
+
+When administering your Kubernetes cluster, you will likely run into a situation where you need to delete pods from one of your nodes. You may need to debug issues with the node itself, upgrade the node, or simply scale down your cluster.
+
+Deleting pods from a node is not very difficult, however there are specific steps you should take to minimize disruption for your application. Be sure to fully read and understand each step before executing any commands to ensure no mistakes happen that could lead to downtime.
+
+Remove Node from cluster :-
+
+	1.  Perform drain operation in that node to kill the pods in present folder and start it in different nodes.
+
+	    kubectl cordon <nodeName>
+	    
+	    cordon :  Means, It will mark as un-scheduled
+
+	Note : When you darin the node, you need to ignore the daemon sets and remove local storage like below : 
+
+	> kubectl drain <node-name> --ignore-daemonsets --delete-local-data --force
+
+	2. If you want to add the node back to cluster then uncordon that.
+
+	> kubectl uncordon <nodeName>
+	
+	    uncordon : Means, It will mark as schduled
+
+	3. Remove workernode from cluster
+
+	> kubectl delete node <node name>
+
+
+
+## Volumes
+	- PV , PVC ( Static )  and Storage Class ( Dynamic )
+Notes: 
+	- PV is created cluster level and pvc belong to namespace level
+	- With Storage class you can automate the PV creation by specifing only pv claim.
+	- If you declare PV then PVC you need to use the same labels, storage type, access modes and resources ( Some times if the avilable resources are more than u requested also fine ).
+	
+		---
+		## Create a PV with your NFS shared folder.
+		apiVersion: v1
+		kind: PersistentVolume
+		metadata:
+		  name: nfs-pv-hpcc
+		spec:
+		  capacity:
+		    storage: 65Gi
+		  volumeMode: Filesystem
+		  accessModes:
+		    - ReadWriteMany
+		  persistentVolumeReclaimPolicy: Recycle
+		  storageClassName: nfs-sc-hpcc
+		  mountOptions:
+		    - hard
+		    - nfsvers=4.1
+		  nfs:
+		    path: /data            ## Shared folder of NFS server
+		    server: 52.118.191.60  ## Name of the NFS server.
+
+		---
+		## Create a PVC from PV.
+		apiVersion: v1
+		kind: PersistentVolumeClaim
+		metadata:
+		  name: nfs-pvc-hpcc
+		spec:
+		  accessModes:
+		    - ReadWriteMany
+		  storageClassName: nfs-sc-hpcc
+		  resources:
+		    requests:
+		      storage: 65Gi
+	
+## Name Spaces
+
+we have 4 default namespaces creating by k8s: 
+
+	default The default namespace for objects with no other namespace
+	kube-system The namespace for objects created by the Kubernetes system
+	kube-public This namespace is created automatically and is readable by all users (including those not authenticated). This namespace is mostly reserved for cluster usage, in case that some resources should be visible and readable publicly throughout the whole cluster. The public aspect of this namespace is only a convention, not a requirement.
+	kube-node-lease This namespace for the lease objects associated with each node which improves the performance of the node heartbeats as the cluster scales.
+
+## Liveness |Readiness |startup probes
+
+	the *liveness probe* will restart a container when it becomes unresponsive *and* the *readiness probe* is used to decide when a container is *ready* to start *or* stop accepting traffic
+
+## Startup probe:
+
+	Legacy applications take time to start and kubectl will kill the pod and start new one. So, to avoid this use startup probe
+	The startup probe is only called during startup and is used to determine when the container is ready to accept requests. If a startup probe is configured, the liveness and readiness checks are disabled until the startup probe succeeds. If a startup probe exceeds the configured failureThreshold without succeeding, the container is killed and restarted, subject to the pod's restartPolicy, a behaviour analogous to the liveness probe.
+
+
+
+## Adopter Container :  ( like Side cart container )
+
+
+	The *Adapter container* is a simple express node server that reads from the location /var/log/file.log and produces JSON format. Let's implement a simple project to understand this pattern. The *Adapter container* is a simple express API that serves these logs as a JSON response.
+
+
+## Headless pod ( with no load balancer, only cluster IP )
+
+	A *headless* service is a service with a service IP but instead of load-balancing it will return the IPs of our associated *Pods*. This allows us to interact directly with the *Pods* instead of a proxy. It's as simple as specifying None for .
+
+## StatefulSets ( It will store the app information permanentley ) : 
+
+	StatefulSet is a Kubernetes resource used to manage stateful applications. It manages the deployment and scaling of a set of Pods, and provides guarantee about the ordering and uniqueness of these Pods.
+	
+	Note: 
+		Every replica of a stateful set will have its own state, and each of the pods will be creating its own PVC(Persistent Volume Claim). So a statefulset with 3 replicas will create 3 pods, each having its own Volume, so total 3 PVCs.
+
+	Ex: 
+			apiVersion: apps/v1
+			kind: StatefulSet
+			metadata:
+			  name: counter
+			spec:
+			  serviceName: "counter-app"
+			  selector:
+			    matchLabels:
+			      app: counter
+			  replicas: 1 
+			  template:
+			    metadata:
+			      labels:
+				app: counter
+			    spec:      
+			      containers:
+			      - name: counter
+				image: "kahootali/counter:1.1"  
+				volumeMounts:
+				- name: counter
+				  mountPath: /app/      
+			  volumeClaimTemplates:
+			  - metadata:
+			      name: counter
+			    spec:
+			      accessModes: [ "ReadWriteMany" ]
+			      storageClassName: efs
+			      resources:
+				requests:
+				  storage: 50Mi
+
+
 # Architecture types 
 	- Monolithic ( thease are tightly coupled and if any function down entire application down .. ex: WAR/JAR )
 	- MicroService ( Loosly coupled and each service work independently. So , If any function down then other functions of  microservices will run independently)
@@ -111,6 +312,7 @@ API Version
 Note: 
 	 -> Secrets ( v1 stable release) 
 	 -> NameSpace ( v1 apiVersion)
+	 -> configMaps ( v1 apiVersion )
 
 
 
@@ -200,3 +402,18 @@ OtherInformation
 		kubectl apply --validate=true --dry-run=true --filename=nginx-run.yaml
 	
 	
+### HPA and VPA
+Ref : https://medium.com/nerd-for-tech/autoscaling-in-kubernetes-hpa-vpa-ab61a2177950#:~:text=Unlike%20Horizontal%20Pod%20Autoscaler%20(%20HPA,suitable%20CPU%20and%20Memory%20attributes.
+
+	apiVersion: autoscaling/v1
+	kind: HorizontalPodAutoscaler
+	metadata:
+	  name: k8s-autoscaler
+	spec:
+	  maxReplicas: 10
+	  minReplicas: 2
+	  scaleTargetRef:
+	    apiVersion: apps/v1
+	    kind: Deployment
+	    name: k8s-autoscaler
+	  targetCPUUtilizationPercentage: 50
