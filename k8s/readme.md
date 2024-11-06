@@ -50,6 +50,7 @@ A sidecar is just a container that runs on the same Pod as the application conta
 	 
 ### Taints and Tolarations 
 
+   https://devtron.ai/blog/kubernetes-taints-tolerations/#:~:text=Taints%20and%20tolerations%20are%20one%20of%20the%20more%20advanced%20modes,is%20placed%20on%20the%20node.
 	spec:
            tolerations:
            - effect: NoSchedule
