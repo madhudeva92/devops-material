@@ -5,6 +5,45 @@ A StatefulSet is the Kubernetes controller used to run the stateful application 
 Ref Link: https://loft.sh/blog/kubernetes-statefulset-examples-and-best-practices/
 Ref Link: https://github.com/MithilShah/kubernetes-course/tree/master/kubernetes_statefulsets
 
+## StatefulSets ( It will store the app information permanentley ) : 
+
+	StatefulSet is a Kubernetes resource used to manage stateful applications. It manages the deployment and scaling of a set of Pods, and provides guarantee about the ordering and uniqueness of these Pods.
+	
+	Note: 
+		Every replica of a stateful set will have its own state, and each of the pods will be creating its own PVC(Persistent Volume Claim). So a statefulset with 3 replicas will create 3 pods, each having its own Volume, so total 3 PVCs.
+
+	Ex: 
+			apiVersion: apps/v1
+			kind: StatefulSet
+			metadata:
+			  name: counter
+			spec:
+			  serviceName: "counter-app"
+			  selector:
+			    matchLabels:
+			      app: counter
+			  replicas: 1 
+			  template:
+			    metadata:
+			      labels:
+				app: counter
+			    spec:      
+			      containers:
+			      - name: counter
+				image: "kahootali/counter:1.1"  
+				volumeMounts:
+				- name: counter
+				  mountPath: /app/      
+			  volumeClaimTemplates:
+			  - metadata:
+			      name: counter
+			    spec:
+			      accessModes: [ "ReadWriteMany" ]
+			      storageClassName: efs
+			      resources:
+				requests:
+				  storage: 50Mi
+      
 ### Deployments vs StatefulSets vs DaemonSets.
 
 	Deployment - You specify a PersistentVolumeClaim that is shared by all pod replicas. In other words, shared volume.
@@ -159,46 +198,6 @@ we have 4 default namespaces creating by k8s:
 ## Headless pod ( with no load balancer, only cluster IP )
 
 	A *headless* service is a service with a service IP but instead of load-balancing it will return the IPs of our associated *Pods*. This allows us to interact directly with the *Pods* instead of a proxy. It's as simple as specifying None for .
-
-## StatefulSets ( It will store the app information permanentley ) : 
-
-	StatefulSet is a Kubernetes resource used to manage stateful applications. It manages the deployment and scaling of a set of Pods, and provides guarantee about the ordering and uniqueness of these Pods.
-	
-	Note: 
-		Every replica of a stateful set will have its own state, and each of the pods will be creating its own PVC(Persistent Volume Claim). So a statefulset with 3 replicas will create 3 pods, each having its own Volume, so total 3 PVCs.
-
-	Ex: 
-			apiVersion: apps/v1
-			kind: StatefulSet
-			metadata:
-			  name: counter
-			spec:
-			  serviceName: "counter-app"
-			  selector:
-			    matchLabels:
-			      app: counter
-			  replicas: 1 
-			  template:
-			    metadata:
-			      labels:
-				app: counter
-			    spec:      
-			      containers:
-			      - name: counter
-				image: "kahootali/counter:1.1"  
-				volumeMounts:
-				- name: counter
-				  mountPath: /app/      
-			  volumeClaimTemplates:
-			  - metadata:
-			      name: counter
-			    spec:
-			      accessModes: [ "ReadWriteMany" ]
-			      storageClassName: efs
-			      resources:
-				requests:
-				  storage: 50Mi
-
 
 # Architecture types 
 	- Monolithic ( thease are tightly coupled and if any function down entire application down .. ex: WAR/JAR )
